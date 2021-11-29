@@ -13,20 +13,26 @@ exports.helloWorld = functions.https.onRequest((request, response) => {
 });
 
 exports.sendPushNotification = functions.https.onRequest((req, res) => {
-    const fcmToken = req.body.token
-    const message = req.body.message
-    const payload = {
-        token: fcmToken,
-        notification: {
-            title: 'LikeQ',
-            body: message
-        },
-        data: {
-            body: message,
-        }
-    };
-    admin.messaging().send(payload)
-    return response.status(200).json({
-        data: 'Hello from Firebase cloud messaging!'
-    })
+    try {
+        const {token, message} = req.body.data
+        const payload = {
+            token,
+            notification: {
+                title: 'LikeQ',
+                body: message
+            },
+            data: {
+                body: message,
+            }
+        };
+        admin.messaging().send(payload)
+        return res.status(200).json({
+            data: {
+                msg: 'Hello from Firebase cloud messaging!',
+                req: req.body.data
+            }
+        })
+    } catch (error) {
+        functions.logger.log("Hello from info. Here's an object:", error);
+    }
 });
